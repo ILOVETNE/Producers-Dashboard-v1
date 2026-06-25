@@ -23,7 +23,7 @@ https://raw.githubusercontent.com/ILOVETNE/Producers-Dashboard-v1/refs/heads/mai
 
 ```jsonc
 {
-  "version": 1,        // keep as 1
+  "version": 1,        // schema version — keep 1 (see "Versioning")
   "enable": true,      // false = ignore this file, app shows its built-in menu
   "sections": [        // the grey-headed groups, top to bottom
     {
@@ -42,6 +42,7 @@ https://raw.githubusercontent.com/ILOVETNE/Producers-Dashboard-v1/refs/heads/mai
 | Field      | Required?            | What it does |
 |------------|----------------------|--------------|
 | `label`    | yes                  | The text shown on the row. |
+| `labelKey` | optional             | Show a built-in **translated** label instead of `label` — see Localized labels. |
 | `icon`     | recommended          | Picks the row icon — see Icons. |
 | `action`   | yes                  | What happens on tap — see Actions. |
 | `url`      | only for `url` / `external` | The web address to open. |
@@ -89,9 +90,11 @@ https://raw.githubusercontent.com/ILOVETNE/Producers-Dashboard-v1/refs/heads/mai
 { "label": "Reviews", "icon": "star", "action": "screen:reviews" }
 ```
 
-> Want a brand-new native screen (e.g. a real "Promotions" screen)? That needs a
-> small app code change to add the new `screen:` key. Until then, point the row
-> at a web page with `url`. A `screen:` key the app doesn't know does nothing when tapped.
+> **Staged rollout / unknown keys:** if a `tab:`/`screen:` key isn't understood
+> by the installed app version, that row is **hidden** (not shown as a dead row).
+> So you can safely add a row for a future native screen now — older apps hide
+> it, and it lights up automatically once they update. A web (`url`/`external`)
+> row works on every version immediately.
 
 ### `url` — open a web page inside the app
 
@@ -139,7 +142,7 @@ For pages that should open with the seller **already logged in**, use
   "label": "Promotions",
   "icon": "discount",
   "action": "url",
-  "url": "https://yoursite.com/my-account/promotions",
+  "url": "https://yourstore.com/my-account/promotions",
   "auth": true
 }
 ```
@@ -148,13 +151,37 @@ The app appends the seller's secure auto-login token to the URL, so your website
 logs them in automatically — same mechanism as the seller's web dashboard. No
 password typing.
 
-- Use `auth: true` only on **your own** site pages that accept the auto-login token.
+- **Safety lock:** the token is attached **only when the link is on your store's
+  own domain** (the app's configured store URL, including its subdomains). If
+  `auth:true` points at any other site, the page still opens but **without** the
+  token — so the seller's session can never leak to a third-party host.
 - Works only with `action: "url"` (in-app). Does nothing on `external`.
 - Public pages: leave `auth` out.
 
 ---
 
-## 6. Hiding things temporarily (`enabled`)
+## 6. Localized labels (`labelKey`)
+
+By default a row shows its `label` exactly as written. If you want a row to
+follow the app's **language** automatically, add a `labelKey` from the built-in
+set below. When the app recognizes the key it shows the translated text;
+otherwise it falls back to `label`.
+
+```json
+{ "label": "Orders", "labelKey": "orders", "icon": "bag", "action": "tab:orders" }
+```
+
+Built-in keys that translate: `orders`, `products`, `earnings`, `reviews`,
+`settings`, `dashboard`, `menu`, `notifications`, `storeSettings`,
+`updateInformation`.
+
+> Custom rows (e.g. Promotions, Training, Help) have no built-in translation —
+> just use `label`. Always keep a `label` as the fallback even when you set
+> `labelKey`. Section titles are not translated yet.
+
+---
+
+## 7. Hiding things temporarily (`enabled`)
 
 ```json
 { "label": "Instant Cash", "icon": "wallet", "action": "url", "url": "https://...", "enabled": false }
@@ -166,10 +193,10 @@ password typing.
 
 ---
 
-## 7. Common recipes
+## 8. Common recipes
 
 ```json
-{ "label": "Advertisement", "icon": "megaphone", "action": "url", "url": "https://yoursite.com/ads", "auth": true }
+{ "label": "Advertisement", "icon": "megaphone", "action": "url", "url": "https://yourstore.com/ads", "auth": true }
 ```
 
 ```json
@@ -177,22 +204,22 @@ password typing.
 ```
 
 ```json
-{ "label": "Products", "icon": "box", "action": "tab:products" }
+{ "label": "Products", "labelKey": "products", "icon": "box", "action": "tab:products" }
 ```
 
 ```json
 {
   "title": "Payments",
   "items": [
-    { "label": "Payments", "icon": "wallet", "action": "url", "url": "https://yoursite.com/my-account/payments", "auth": true },
-    { "label": "Statements", "icon": "chart", "action": "url", "url": "https://yoursite.com/my-account/statements", "auth": true }
+    { "label": "Payments", "icon": "wallet", "action": "url", "url": "https://yourstore.com/my-account/payments", "auth": true },
+    { "label": "Statements", "icon": "chart", "action": "url", "url": "https://yourstore.com/my-account/statements", "auth": true }
   ]
 }
 ```
 
 ---
 
-## 8. Full working example
+## 9. Full working example
 
 ```json
 {
@@ -202,27 +229,27 @@ password typing.
     {
       "title": "Manage business",
       "items": [
-        { "label": "Orders",         "icon": "bag",   "action": "tab:orders" },
-        { "label": "Products",       "icon": "box",   "action": "tab:products" },
-        { "label": "Earnings",       "icon": "cash",  "action": "tab:earnings" },
-        { "label": "Store settings", "icon": "store", "action": "screen:storeSettings" },
-        { "label": "Business info",  "icon": "info",  "action": "screen:updateInfo" }
+        { "label": "Orders",         "labelKey": "orders",            "icon": "bag",   "action": "tab:orders" },
+        { "label": "Products",       "labelKey": "products",          "icon": "box",   "action": "tab:products" },
+        { "label": "Earnings",       "labelKey": "earnings",          "icon": "cash",  "action": "tab:earnings" },
+        { "label": "Store settings", "labelKey": "storeSettings",     "icon": "store", "action": "screen:storeSettings" },
+        { "label": "Business info",  "labelKey": "updateInformation", "icon": "info",  "action": "screen:updateInfo" }
       ]
     },
     {
       "title": "Grow sales",
       "items": [
-        { "label": "Promotions",       "icon": "discount",  "action": "url", "url": "https://yoursite.com/my-account/promotions", "auth": true },
-        { "label": "Advertisement",    "icon": "megaphone", "action": "url", "url": "https://yoursite.com/my-account/ads",        "auth": true },
-        { "label": "Training",         "icon": "school",    "action": "url", "url": "https://yoursite.com/training",              "auth": false },
-        { "label": "How-to tutorials", "icon": "play",      "action": "url", "url": "https://yoursite.com/tutorials",             "auth": false }
+        { "label": "Promotions",       "icon": "discount",  "action": "url", "url": "https://yourstore.com/my-account/promotions", "auth": true },
+        { "label": "Advertisement",    "icon": "megaphone", "action": "url", "url": "https://yourstore.com/my-account/ads",        "auth": true },
+        { "label": "Training",         "icon": "school",    "action": "url", "url": "https://yoursite.com/training" },
+        { "label": "How-to tutorials", "icon": "play",      "action": "url", "url": "https://yoursite.com/tutorials" }
       ]
     },
     {
       "title": "Account & help",
       "items": [
-        { "label": "Reviews",     "icon": "star", "action": "screen:reviews" },
-        { "label": "Settings",    "icon": "gear", "action": "screen:settings" },
+        { "label": "Reviews",     "labelKey": "reviews",  "icon": "star", "action": "screen:reviews" },
+        { "label": "Settings",    "labelKey": "settings", "icon": "gear", "action": "screen:settings" },
         { "label": "Help center", "icon": "help", "action": "external", "url": "https://yoursite.com/help" }
       ]
     }
@@ -232,7 +259,7 @@ password typing.
 
 ---
 
-## 9. Rules & gotchas
+## 10. Rules & gotchas
 
 - **It must be valid JSON** — close every `{ }` / `[ ]`, comma between items, no trailing comma. Check at https://jsonlint.com. A broken file makes the app use its built-in menu.
 - **No real comments in the live file** — the `//` notes here are for reading only.
@@ -243,8 +270,18 @@ password typing.
 
 ---
 
-## 10. Where the app points (for developers)
+## 11. Versioning
+
+`version` tells the app which schema it's reading. This app build understands
+**version 1**. If a future app release introduces a breaking schema it will use a
+higher number — and **older apps will ignore a file whose version they don't
+support** and show their built-in menu instead of mis-reading it. Practically:
+leave `version` at `1` unless you're told otherwise.
+
+---
+
+## 12. Where the app points (for developers)
 
 Default raw URL is above. Repoint at runtime via cloud config key
-`vendorConfig.ProducerMenuUrl` (no rebuild). New `screen:` / `icon:` keywords are
-added in app code (`producer_menu_screen.dart`).
+`vendorConfig.ProducerMenuUrl` (no rebuild). New `screen:` / `icon:` / `labelKey`
+keywords are added in app code (`producer_menu_screen.dart`).

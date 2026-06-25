@@ -1,1 +1,33 @@
-
+{
+  "version": 1,
+  "enable": true,
+  "sections": [
+    {
+      "title": "Manage business",
+      "items": [
+        { "label": "Orders",          "icon": "bag",      "action": "tab:orders" },
+        { "label": "Products",        "icon": "box",      "action": "tab:products" },
+        { "label": "Earnings",        "icon": "cash",     "action": "tab:earnings" },
+        { "label": "Store settings",  "icon": "store",    "action": "screen:storeSettings" },
+        { "label": "Business info",   "icon": "info",     "action": "screen:updateInfo" }
+      ]
+    },
+    {
+      "title": "Grow sales",
+      "items": [
+        { "label": "Promotions",      "icon": "discount", "action": "url", "url": "https://REPLACE-ME/promotions", "auth": true },
+        { "label": "Advertisement",   "icon": "megaphone","action": "url", "url": "https://REPLACE-ME/ads",        "auth": true },
+        { "label": "Training",        "icon": "school",   "action": "url", "url": "https://REPLACE-ME/training",   "auth": false },
+        { "label": "How-to tutorials","icon": "play",     "action": "url", "url": "https://REPLACE-ME/tutorials",  "auth": false }
+      ]
+    },
+    {
+      "title": "Account & help",
+      "items": [
+        { "label": "Reviews",         "icon": "star",     "action": "screen:reviews" },
+        { "label": "Settings",        "icon": "gear",     "action": "screen:settings" },
+        { "label": "Help center",     "icon": "help",     "action": "external", "url": "https://REPLACE-ME/help" }
+      ]
+    }
+  ]
+}
